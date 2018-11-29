@@ -20,9 +20,6 @@
    integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
    crossorigin=""></script>
    
-   <script src="readGPX.js" ></script>
-
-   
    <style>
 	#mapid {height: 600px; width: 1050px;}
    </style>
@@ -97,10 +94,20 @@
 	<div class="container" style="padding-left:100px;">
 		<div id="mapid"></div>
 		</br>
-		<center> <a href="#" class="btn btn-default btn-lg">Upload Another Run</a> </center>
-		</br></br>
+		</br>
 	</div>
+	
+	<div class="container" style="padding-left:100px;">
+			<canvas id="heartrategraph" width="1050" height="600"></canvas>
+			</br>
+			</br>
+			<center> <a href="#" class="btn btn-default btn-lg">Upload Another Run</a> </center>
+			</br>
+	</div>
+
 </div>
+
+<script src="readGPX.js" ></script>
 
 <script>
 		var mapid = L.map('mapid').setView([ 55.864237, -4.251806], 14);

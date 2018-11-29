@@ -4,10 +4,10 @@ $(document).ready(function() {
 		$.ajax({
 			type: "GET",
 			//url: "gpx/" + $('input[type=file]').val().split('\\').pop(),
-			url: "gpx/Lugano.gpx"
+			url: "gpx/Lugano.gpx",
 			dataType: "xml",
 			success: parseXml 
-		)};
+		});
 	//});
 });
 
@@ -16,6 +16,9 @@ function parseXml(xml) {
 		mapid.panTo(new L.LatLng(parseFloat($(xml).find("trkpt").first().attr("lat")),parseFloat($(xml).find("trkpt").first().attr("lon"))));
 
 		var distance = 0;
+		
+		//for graph 
+		heartrates = [];
 
 		//for times
 		var start = $(xml).find("time").first().text();
@@ -47,6 +50,7 @@ function parseXml(xml) {
 
 			//for average heart rate
 			var heartRate = parseInt($(this).find("ns3\\:hr").text());
+			heartrates.push(heartRate);
 			avgHeartRate += heartRate;
 
 			//for average cadence
@@ -86,6 +90,15 @@ function parseXml(xml) {
 		
 		});
 
+		//for graph
+		var label = [];
+		for (i = 0; i < size; i++) {
+			label.push("track point: " + i);
+		}
+		
+		plotHeartRate(heartrates, label);
+		document.getElementById("heartrate").innerHTML = '<canvas id="heartrateChart" width="1050" height="600"></canvas>';
+
 		var averageHR = avgHeartRate / size;
 		var averageC = avgCadence / size; 
 		
@@ -102,10 +115,43 @@ function parseXml(xml) {
 		polyline.addTo(mapid);
 	}, 
 	
-	error: function(XMLHttpRequest, textStatus, errorThrown) {
-		alert("Error: Incorrect File type");
-	},
 };
+
+function plotHeartRate(hr, labels) {
+	var heartRateGraph = document.getElementById("heartrategraph");
+	
+	var plot = new Chart(heartRateGraph, {
+		type: 'line',
+		data: {
+			labels: label,
+			datasets: [{
+				label: "Heart Rate",
+				data: hr,
+				borderColor: "#FFC46A",
+				borderWidth: 1,
+				fill: false,
+			}],
+		},
+		options: {
+			elements: {
+				point: {
+					radius: 0
+				}
+			},
+			scales: {
+				xAxes: [{
+					display: false
+				}],
+				yAxes: [{
+					scaleLabel: {
+						display: true;
+						labelString: 'Heart Rate'
+					}
+				}]
+			}
+		}
+	});
+}
 
 function getDistance(lat1, lat2, lon1, lon2) {
 	var lat1 = toRadian(lat1);

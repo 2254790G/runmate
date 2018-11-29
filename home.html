@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+  <title>RunMate</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
+   <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"
+   integrity="sha512-nMMmRyTVoLYqjP9hrbed9S+FzjZHW5gY1TWCHA5ckwXZBadntCNs8kEqAWdrb9O7rxbCaA4lKTIWjDXZxflOcA=="
+   crossorigin=""></script>
+   
+   
+   <style>
+	#mapid {height: 600px; width: 600px;}
+   </style>
+   
+</head>
+
+<body>
+<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="
+      collapse" data-target="#navbar-collapse-main">
+      <span class="sr-only">Toggle navigation</span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+    <a class="navbar-brand" href="#"><img src="images/logo.png" height="25" ></a>
+    </div>
+    <div class="collapse navbar-collapse" id="navbar-collapse-main">
+      <ul class="nav navbar-nav navbar-right">
+        <li><a class="active" href="#">Home</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div id="home">
+  <div class="landing-text" style="background-image: url(images/running.jpg); background-size:cover">
+    <h1>RUNMATE</h1>
+    <h3 style="color:#FFC46A;"> Click the button below to upload your run</h3>
+	</br>
+    <!-- <a href="#data" class="btn btn-default btn-lg">Upload your run</a> -->
+	<!-- <center> <form id="xmlForm" action="" method="POST">
+	<input type="file" name="xmlFile" id="xmlFile" class="btn btn-default btn-lg" accept=".gpx"/>
+	</br>
+	<input type="submit" value="Upload your run" class="btn btn-default btn-lg" name="submit"/>
+	</form>  </center> -->
+	
+	
+	
+  </div>
+</div>
+
+<div id="data" class="padding">
+  <div class="container">
+    <div class="col-sm-6">
+      <h3><div id="distanceRan"></div></h3>
+	  <h3><div id="duration"></div></h3>
+	  <h3><div id="averageHeartRate"></div></h3>
+	  <h3><div id="averageCadence"></div></h3>
+	  <h3><div id="averagePace"></div></h3>
+
+	  </br>
+	  <div id="mapid"></div>
+      <div>
+	  </br>
+      <a href="#" class="btn btn-default btn-lg">Upload Another Run</a>
+      </div>
+	</div>
+  </div>
+</div>
+
+<script>
+		var mapid = L.map('mapid').setView([46.003257147967815399169921875,8.95168307237327098846435546875], 13);
+		
+		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', { 
+			attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+			maxZoom: 30,
+			id: 'mapbox.streets',
+			accessToken: 'pk.eyJ1IjoiMjI1NDc5MGciLCJhIjoiY2pvcnJjcW5xMGdxbTNrcGg3bXZhajF4diJ9.chhl3I6Y78H3F_YrFB-gWQ'
+		}).addTo(mapid);
+</script>
+
+</div>
+
+
+<footer id="contact" class="container-fluid text-center">
+  <div class="row">
+    <div class="col-sm-4">
+      <h3>Contact Us</h3>
+	  </br>
+      <h4> University of Glasgow, Boyd Orr 720</h4>
+	  </br>
+	</div>
+	<div class="col-sm-4">
+      <h3>Connect</h3>
+      <a href="https://www.facebook.com/hannah.fairlie" class="fa fa-facebook"></a>
+      <a href="https://twitter.com/amygillies_" class="fa fa-twitter"></a>
+      <a href="https://plus.google.com/102679763721060381276" class="fa fa-google"></a>
+      <a href="https://www.instagram.com/huriyah_h/?hl=en" class="fa fa-instagram"></a>
+	</div>
+   </div>
+</footer>
+
+<script>
+
+$(document).ready(function()
+	{
+		$.ajax({
+			type: "GET",
+			url: "/gpx/Lugano.gpx",
+			dataType: "xml",
+			success: parseXml
+		});
+	});
+	
+	function parseXml(xml)
+	{	
+	
+		var distance = 0
+		
+		//for times
+		var start = $(xml).find("time").first().text();
+		let startDT = new Date(start);
+		var end = $(xml).find("time").last().text();
+		let endDT = new Date(end);
+		let difference = endDT.getTime()-startDT.getTime();
+		var hours = Math.floor(difference / 1000 / 60 / 60);
+		difference -= hours * 1000 * 60 * 60;
+		var minutes = Math.floor(difference / 1000 / 60)
+		
+		var avgHeartRate = 0;
+		var avgCadence = 0;
+		
+		var size = parseInt($(xml).find("trkpt").length);
+		
+		
+		$(xml).find("trkpt").each(function()
+		{
+			mapPoint = L.marker([$(this).attr("lat"), $(this).attr("lon")]).addTo(mapid);	
+			
+			let dateTime = new Date($(this).find("time").text());
+			
+			//for average heart rate
+			var heartRate = parseInt($(this).find("ns3\\:hr").text());
+			avgHeartRate += heartRate;
+
+			//for average cadence
+			var cadence = parseInt($(this).find("ns3\\:cad").text());
+			avgCadence += cadence; 
+			
+			var lat1 = parseFloat($(this).attr("lat"));
+			var lon1 = parseFloat($(this).attr("lon"));
+			var lat2 = parseFloat($(this).next().attr("lat"));
+			var lon2 = parseFloat($(this).next().attr("lon"));
+			var d = getDistance(lat1,lat2,lon1,lon2);
+			if (!isNaN(d)) {
+				distance += d;
+			}
+			
+			var hour = dateTime.getHours();
+			var mins = dateTime.getMinutes();
+			var seconds = dateTime.getSeconds();
+			
+			if(mins<10) 
+				minuteString = "0"+mins+"";
+			else
+				minuteString = mins;
+			
+			if (seconds<10)
+				secondString = "0"+seconds+"";
+			else
+				secondString = seconds;
+			
+			var time = hour + ":" + minuteString + ":" + secondString;
+			
+			mapPoint.bindPopup("Time: " + time + "</br> Distance ran from start point: " + distance.toFixed(2) + " miles </br> </br> Heart Rate: " + heartRate + " beats per min </br> Cadence:" + cadence + " steps per min </br> Elevation: " + parseFloat($(this).find("ele").text()).toFixed(1) + "ft");
+		});
+		
+		var averageHR = avgHeartRate / size;
+		var averageC = avgCadence / size; 
+		
+		var pace = minutes / distance; 
+		
+		$("#distanceRan").append("Distance ran: " + parseFloat(distance).toFixed(2) + " miles");
+		$("#duration").append("Duration of run: " + minutes + " minutes");
+		$("#averageHeartRate").append("Average heartrate: " + averageHR.toFixed(0) + " beats per minute");
+		$("#averageCadence").append("Average cadence: " + averageC.toFixed(0) + " steps per minute");
+		$("#averagePace").append("Average pace: " + pace.toFixed(2) + " minutes per mile");
+				
+	}; 
+	
+	function getDistance(lat1, lat2, lon1, lon2) {
+		var lat1 = toRadian(lat1);
+		var lat2 = toRadian(lat2);
+		var lon1 = toRadian(lon1);
+		var lon2 = toRadian(lon2);
+		
+		var deltaLat = lat2 - lat1;
+		var deltaLon = lon2 - lon1;
+		
+		var a = Math.pow(Math.sin(deltaLat/2), 2) + Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(deltaLon/2), 2);
+		var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+		var EARTH_RADIUS = 6371;
+		return c * EARTH_RADIUS;
+	
+	};
+	
+	function toRadian(degree) {
+			return degree*Math.PI/180;
+	};
+	</script>
+
+</body>
+</html>
